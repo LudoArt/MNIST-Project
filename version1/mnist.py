@@ -72,6 +72,9 @@ def train(mnist):
     # 使用梯度下降优化算法来优化损失函数
     train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss, global_step=global_step)
 
+    # 在训练神经网络模型时，每过一遍数据既需要通过反向传播来更新神经网络中的参数，又要更新每一个参数的滑动平均值
+    # 为了一次完成多个操作，TensorFlow提供了tf.control_dependencies和tf.group两种机制
+    # 下面两行代码和`train_op = tf.group(train_step, variables_averages_op)`是等价的
     with tf.control_dependencies([train_step, variables_averages_op]):
         train_op = tf.no_op(name='train')
 
