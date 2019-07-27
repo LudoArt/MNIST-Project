@@ -55,23 +55,37 @@ def train(mnist):
 
     # 初始化TensorFlow持久化类
     saver = tf.train.Saver()
+
+    writer = tf.summary.FileWriter("F:/mnist/to/log", tf.get_default_graph())
     with tf.Session() as sess:
         tf.global_variables_initializer().run()
 
         # 在训练过程中不再测试模型在验证数据上的表现，验证和测试的过程将会有一个独立的程序来完成
         for i in range(TRAINING_STEPS):
             xs, ys = mnist.train.next_batch(BATCH_SIZE)
-            _, loss_value, step = sess.run([train_op, loss, global_step],
-                                           feed_dict={x: xs, y_: ys})
+
             # 每1000轮保存一次模型
             if i % 1000 == 0:
+                # 配置运行时需要记录的信息
+                run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+                # 运行时记录运行信息的proto
+                run_metadata = tf.RunMetadata()
+                # 将配置信息和记录运行信息的proto传入运行的过程，从而记录运行时每一个节点的时间、空间开销信息
+                _, loss_value, step = sess.run([train_op, loss, global_step],
+                                               feed_dict={x: xs, y_: ys},
+                                               options=run_options, run_metadata=run_metadata)
+                # 将节点在运行时的信息写入日志文件
+                writer.add_run_metadata(run_metadata, 'step%03d' % i)
                 # 输出当前的训练情况
                 print("After %d training step(s), loss on training batch is %g" % (step, loss_value))
                 # 保存当前的模型
                 saver.save(sess, os.path.join(MODEL_SAVE_PATH, MODEL_NAME), global_step=global_step)
+            else:
+                _, loss_value, step = sess.run([train_op, loss, global_step],
+                                               feed_dict={x: xs, y_: ys})
 
-    writer = tf.summary.FileWriter("F:/mnist/to/log", tf.get_default_graph())
     writer.close()
+
 
 def main(argv=None):
     mnist = input_data.read_data_sets("F:/mnist/to/mnist_data", one_hot=True)
