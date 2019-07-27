@@ -31,7 +31,7 @@ def train(mnist):
 
     # 和version1类似地定义损失函数、学习率、滑动平均操作以及训练过程
     variable_averages = tf.train.ExponentialMovingAverage(MOVING_AVERAGE_DECAY, global_step)
-    variable_averages_op = variable_averages.apply(tf.trainable_variables)
+    variable_averages_op = variable_averages.apply(tf.trainable_variables())
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, labels=tf.arg_max(y_, 1))
     cross_entropy_mean = tf.reduce_mean(cross_entropy)
     loss = cross_entropy_mean + tf.add_n(tf.get_collection('losses'))
@@ -53,7 +53,7 @@ def train(mnist):
         for i in range(TRAINING_STEPS):
             xs, ys = mnist.train.next_batch(BATCH_SIZE)
             _, loss_value, step = sess.run([train_op, loss, global_step],
-                                           feed_dict={x: xs, y: ys})
+                                           feed_dict={x: xs, y_: ys})
             # 每1000轮保存一次模型
             if i % 1000 == 0:
                 # 输出当前的训练情况

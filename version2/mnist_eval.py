@@ -16,7 +16,7 @@ def evaluate(mnist):
         # 定义输入输出的格式
         x = tf.placeholder(tf.float32, [None, mnist_inference.INPUT_NODE], name='x-input')
         y_ = tf.placeholder(tf.float32, [None, mnist_inference.OUTPUT_NODE], name='y-input')
-        validate_feed = {x: mnist.validation.image, y_: mnist.validation.labels}
+        validate_feed = {x: mnist.validation.images, y_: mnist.validation.labels}
 
         # 直接通过调用封装好的函数来计算前向传播的结果
         y = mnist_inference.inference(x, None)
@@ -41,7 +41,7 @@ def evaluate(mnist):
                     # 通过文件名得到模型保存时迭代的轮数
                     global_step = ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1]
                     accuracy_score = sess.run(accuracy, feed_dict=validate_feed)
-                    print("After %d training step(s), validation accuracy is %g" % (global_step, accuracy_score))
+                    print("After %s training step(s), validation accuracy is %g" % (global_step, accuracy_score))
                 else:
                     print('No checkpoint file found')
                     return
